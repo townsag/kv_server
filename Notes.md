@@ -1,0 +1,3 @@
+- create a server struct instance, it is similar to a fastapp app object
+    - give the server struct instance a handler function which is a ServeMux object
+    - handler can be wrapped with middleware
