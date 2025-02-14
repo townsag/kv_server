@@ -1,3 +1,5 @@
 - create a server struct instance, it is similar to a fastapp app object
     - give the server struct instance a handler function which is a ServeMux object
     - handler can be wrapped with middleware
+- consider the fat service pattern when I want to structure the app better:
+    - [fat-service-link-alex-edwards](https://www.alexedwards.net/blog/the-fat-service-pattern)
