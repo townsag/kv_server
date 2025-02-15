@@ -6,7 +6,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
-	"example.com/kv_store"
+	"github.com/townsag/kv_server/kv_store"
 )
 
 type kvHandler struct {
