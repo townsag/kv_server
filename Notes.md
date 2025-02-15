@@ -3,3 +3,23 @@
     - handler can be wrapped with middleware
 - consider the fat service pattern when I want to structure the app better:
     - [fat-service-link-alex-edwards](https://www.alexedwards.net/blog/the-fat-service-pattern)
+
+- goals:
+    - structured logging
+        - request id
+        - log level
+        - log events at the application level like adding or removing key value pairs
+    - observability
+        - prometheus
+            - histogram: request latency
+            - counter: total requests
+            - gauge: num concurrently served requests
+    - maintainability:
+        - test automation
+            - correctness tests at kv store level
+            - correctness tests at application level
+            - performance test at application level
+    - correctness:
+        - property testing at application level
+    - performance:
+        - high degree of parallelism?
