@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"github.com/townsag/kv_server/kv_store"
+	"github.com/townsag/kv_server/simple_server/middleware"
 )
 
 type kvHandler struct {
@@ -113,7 +114,7 @@ func (h *kvHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 func main() {
 	var store kv_store.Store = kv_store.NewMemoryStore()
 	var logger *slog.Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	var loggingMiddleware func(http.Handler) http.Handler = NewLoggingMiddleware(logger)
+	var loggingMiddleware func(http.Handler) http.Handler = middleware.NewLoggingMiddleware(logger)
 	var handler *kvHandler = newKVHandler(store)
 
 	var mux *http.ServeMux = http.NewServeMux()
@@ -122,6 +123,6 @@ func main() {
 
 	var port string = ":8000"
 	log.Printf("starting kv server on port: %s", port)
-	err := http.ListenAndServe(port, RequestIdMiddleware(loggingMiddleware(mux)))
+	err := http.ListenAndServe(port, middleware.RequestIdMiddleware(loggingMiddleware(mux)))
 	log.Fatal(err.Error())
 }
