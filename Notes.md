@@ -3,6 +3,8 @@
     - handler can be wrapped with middleware
 - consider the fat service pattern when I want to structure the app better:
     - [fat-service-link-alex-edwards](https://www.alexedwards.net/blog/the-fat-service-pattern)
+- packages are directories with go code in them, they are meant to organize your code within a module
+- modules are collections of packages with dependency management
 
 - goals:
     - structured logging
