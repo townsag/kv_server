@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"log"
 	"log/slog"
+	"strconv"
 	"os"
+	"fmt"
 	"github.com/townsag/kv_server/kv_store"
 	"github.com/townsag/kv_server/simple_server/middleware"
 )
@@ -50,17 +52,34 @@ func writeJsonResponse(w http.ResponseWriter, data interface{}, statusCode int) 
 }
 
 func (h *kvHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	logger := middleware.GetLogger(r.Context())
 	var key string = r.URL.Query().Get("key")
 	if key == "" {
+		logger.Warn(
+			"failed to serve request",
+			"message", "'key' query parameter is required",
+			"status", strconv.Itoa(http.StatusBadRequest),
+		)
 		writeJsonResponse(w, map[string]string{"error":"'key' query parameter is required"}, http.StatusBadRequest)
 		return
 	}
 
+	// need to decide on a proper type to be stored in the key value store
+	// for now strings
 	value, err := h.store.Get(key)
 	if err != nil {
+		logger.Warn(
+			"failed to retrieve key value pair to store",
+			"key", key,
+			"error", err.Error(),
+		)
 		writeJsonResponse(w, map[string]string{"error": err.Error()}, http.StatusNotFound)
 		return
 	}
+	logger.Debug(
+		"successfully retrieved from the store",
+		"key", key,
+	)
 	writeJsonResponse(w, map[string]interface{}{"value":value}, http.StatusOK)
 }
 
