@@ -6,6 +6,8 @@ import (
 	"log/slog"
 )
 
+// https://www.alexedwards.net/blog/making-and-using-middleware
+
 var requestIdHeader string = "X-Request-ID"
 
 func RequestIdMiddleware(next http.Handler) http.Handler {
@@ -18,6 +20,7 @@ func RequestIdMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
 
 func LoggingMiddleware(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -35,3 +38,6 @@ func NewLoggingMiddleware(logger *slog.Logger) func(http.Handler) http.Handler {
 		return LoggingMiddleware(logger, h)
 	}
 }
+
+
+// func 

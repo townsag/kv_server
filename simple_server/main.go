@@ -108,6 +108,8 @@ func (h *kvHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	writeJsonResponse(w, map[string]string{"message":"delete successful"}, http.StatusOK)
 }
 
+// https://www.alexedwards.net/blog/an-introduction-to-handlers-and-servemuxes-in-go
+
 func main() {
 	var store kv_store.Store = kv_store.NewMemoryStore()
 	var logger *slog.Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
