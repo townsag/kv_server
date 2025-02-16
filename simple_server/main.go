@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"strconv"
 	"os"
-	"fmt"
 	"github.com/townsag/kv_server/kv_store"
 	"github.com/townsag/kv_server/simple_server/middleware"
 )
@@ -64,7 +63,7 @@ func (h *kvHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// need to decide on a proper type to be stored in the key value store
+	// TODO: need to decide on a proper type to be stored in the key value store
 	// for now strings
 	value, err := h.store.Get(key)
 	if err != nil {
@@ -84,47 +83,79 @@ func (h *kvHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *kvHandler) handlePost(w http.ResponseWriter, r *http.Request) {
+	logger := middleware.GetLogger(r.Context())
 	// decode the request body
 	var kvRequest KeyValueRequest
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&kvRequest); err != nil {
+		logger.Warn(
+			"received bad json",
+			"error", err.Error(),
+		)
 		writeJsonResponse(w, map[string]string{"error":"invalid json body"}, http.StatusBadRequest)
 		return
 	}
 
 	if kvRequest.Key == "" || kvRequest.Value == "" {
+		logger.Warn(
+			"message body is missing one or more fields",
+		)
 		writeJsonResponse(w, map[string]string{"error":"key and value are required fields"}, http.StatusBadRequest)
 		return
 	}
 
 	// update the store
 	if err := h.store.Set(kvRequest.Key, kvRequest.Value); err != nil {
+		logger.Error(
+			"failed to write to store",
+			"error", err.Error(),
+		)
 		writeJsonResponse(w, map[string]string{"error":err.Error()}, http.StatusInternalServerError)
 		return
 	}
+	logger.Debug(
+		"successfully wrote to the store",
+		"key", kvRequest.Key,
+	)
 	writeJsonResponse(w, map[string]string{"message":"set successful"}, http.StatusAccepted)
 }
 
 
 func (h *kvHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	logger := middleware.GetLogger(r.Context())
 	// decode the request body
 	var kRequest KeyRequest
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&kRequest); err != nil {
+		logger.Warn(
+			"revived bad json",
+			"error", err.Error(),
+		)
 		writeJsonResponse(w, map[string]string{"error":"invalid json body"}, http.StatusBadRequest)
 		return
 	}
 
 	if kRequest.Key == "" {
+		logger.Warn(
+			"missing field 'key' in request body",
+		)
 		writeJsonResponse(w, map[string]string{"error":"field 'key' is required"}, http.StatusBadRequest)
 		return
 	}
 
 	// update the store to reflect the delete operation
 	if err := h.store.Delete(kRequest.Key); err != nil {
+		logger.Error(
+			"failed to delete a value form the store",
+			"key", kRequest.Key,
+		)
 		writeJsonResponse(w, map[string]string{"message":err.Error()}, http.StatusInternalServerError)
 		return
 	}
+	logger.Info(
+		"successfully deleted a value from the store",
+		"key", kRequest.Key,
+	)
 	writeJsonResponse(w, map[string]string{"message":"delete successful"}, http.StatusOK)
 }
 
