@@ -75,7 +75,7 @@ func (h *kvHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 		writeJsonResponse(w, map[string]string{"error": err.Error()}, http.StatusNotFound)
 		return
 	}
-	logger.Debug(
+	logger.Info(
 		"successfully retrieved from the store",
 		"key", key,
 	)
@@ -113,7 +113,7 @@ func (h *kvHandler) handlePost(w http.ResponseWriter, r *http.Request) {
 		writeJsonResponse(w, map[string]string{"error":err.Error()}, http.StatusInternalServerError)
 		return
 	}
-	logger.Debug(
+	logger.Info(
 		"successfully wrote to the store",
 		"key", kvRequest.Key,
 	)
