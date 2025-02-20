@@ -17,11 +17,17 @@
             - counter: total requests
             - gauge: num concurrently served requests
     - maintainability:
+        - use openapi for better documentation:
+            - check out: https://github.com/danielgtaylor/huma
         - test automation
             - correctness tests at kv store level
             - correctness tests at application level
             - performance test at application level
     - correctness:
         - property testing at application level
+            - check out this: https://github.com/flyingmutant/rapid
     - performance:
         - high degree of parallelism?
+
+- TODO:
+    - modify logging middleware to allow the log level to be changed programmatically and set with a constant
