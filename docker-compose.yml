@@ -12,7 +12,9 @@ services:
       - prom_data:/prometheus
   
   kv-server:
-    build: ./Dockerfile
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     container_name: kv-server
     ports:
       - 8000:8000
