@@ -9,6 +9,9 @@ import (
 	"os"
 	"github.com/townsag/kv_server/kv_store"
 	"github.com/townsag/kv_server/simple_server/middleware"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type kvHandler struct {
@@ -162,17 +165,32 @@ func (h *kvHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 // https://www.alexedwards.net/blog/an-introduction-to-handlers-and-servemuxes-in-go
 
 func main() {
-	var store kv_store.Store = kv_store.NewMemoryStore()
+	// initialize a parent logger and create a logging middleware handler
 	var logger *slog.Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	var loggingMiddleware func(http.Handler) http.Handler = middleware.NewLoggingMiddleware(logger)
-	var handler *kvHandler = newKVHandler(store)
+
+	// initialize a metrics registry, metrics and create a metrics middleware
+	var registry *prometheus.Registry = prometheus.NewRegistry()
+	var metrics *middleware.Metrics = middleware.NewMetrics(registry)
+	var metricsMiddleware func(http.Handler) http.Handler = middleware.NewMetricsMiddleware(metrics)
+
+
+	var store kv_store.Store = kv_store.NewMemoryStore()
+	var applicationHandler *kvHandler = newKVHandler(store)
 
 	var mux *http.ServeMux = http.NewServeMux()
-	mux.Handle("/item", handler)
+	mux.Handle("/item", applicationHandler)
 	mux.Handle("/item/", http.RedirectHandler("/item", http.StatusTemporaryRedirect))
+	mux.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{Registry: registry}))
 
+	// add the metrics, request, and logging middleware in that order of execution
+	var handler http.Handler = mux
+	handler = loggingMiddleware(handler)
+	handler = middleware.RequestIdMiddleware(handler)
+	handler = metricsMiddleware(handler)
+	
 	var port string = ":8000"
 	log.Printf("starting kv server on port: %s", port)
-	err := http.ListenAndServe(port, middleware.RequestIdMiddleware(loggingMiddleware(mux)))
+	err := http.ListenAndServe(port, handler)
 	log.Fatal(err.Error())
 }
