@@ -7,4 +7,4 @@ scrape_configs:
       - targets: ["localhost:9090"]
   - job_name: simple_kv_server
     static_configs:
-      - targets: ["localhost:8000"]
+      - targets: ["kv-server:8000"]
