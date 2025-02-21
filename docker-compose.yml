@@ -1,0 +1,20 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+  
+  kv-server:
+    image: ./Dockerfile
+    ports:
+      - 8000:8000
+
+volumes:
+  prom_data:
