@@ -12,10 +12,15 @@
         - log level
         - log events at the application level like adding or removing key value pairs
     - observability
-        - prometheus
-            - histogram: request latency
-            - counter: total requests
-            - gauge: num concurrently served requests
+        - logs
+        - metrics
+            - prometheus
+                - histogram: request latency
+                - counter: total requests
+                - gauge: num concurrently served requests
+        - tracing
+            - jaeger
+                - span for each request
     - maintainability:
         - use openapi for better documentation:
             - check out: https://github.com/danielgtaylor/huma
@@ -31,3 +36,18 @@
 
 - TODO:
     - modify logging middleware to allow the log level to be changed programmatically and set with a constant
+    - add the option to persist to the disk
+        - use pebble: https://github.com/cockroachdb/pebble
+    - add single leader replication with raft
+    - add read only nodes
+
+- look into viper for configuration management
+
+- Long term goals:
+    - distributed fault tolerant key value store
+    - backed by WAL and Disk
+        - use bbolt
+        - learn what the write path is 
+        - https://learnk8s.io/etcd-kubernetes
+        - learn what the WAL is
+        - https://claude.ai/chat/fbbea05b-7586-4e9c-9785-dbaed55b3e44
