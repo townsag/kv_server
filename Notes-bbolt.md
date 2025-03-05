@@ -1,0 +1,21 @@
+- storage type:
+    - b+ tree
+        - random read optimized because of logb(n) hops to get to the correct page
+    - uses copy on write
+        - when a new value is written to the database, the page containing that value is duplicated and the update is applied to the new page, then the pointer to that value is moved from the stale page to the fresh page
+    - MVCC: multi version concurrency control
+        - what does this mean for ACID transactions
+    - Bolt stores its keys in byte-sorted order within a bucket. This makes sequential iteration over these keys extremely fast.
+    - Bolt uses a memory-mapped file so the underlying operating system handles the caching of the data
+- transactions
+    - has inclusive read lock and exclusive write lock
+        - only one read-write transaction can happen at a time
+        - many read-only transactions can happen at a time
+    - need to read more about concurrency and starting transactions in / from go routines
+    - the end of a read-write transaction includes writing to the memapped database file then an fsync sys call to flush the change to disk
+- snapshots / backups
+    - Bolt is a single file so it's easy to backup. You can use the Tx.WriteTo() function to write a consistent view of the database to a writer. If you call this from a read-only transaction, it will perform a hot backup and not block your other database reads and writes.
+    - backup over http: 
+        - https://github.com/etcd-io/bbolt?tab=readme-ov-file#database-backups
+- tips:
+    -  values returned from Get() are only valid while the transaction is open. If you need to use a value outside of the transaction then you must use copy() to copy it to another byte slice
